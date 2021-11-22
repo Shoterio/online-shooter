@@ -36,11 +36,11 @@ namespace GameServer
             Interpolation = true;
             MilisecondsToResurect = 2000;
 
-            ServerTickMilliseconds = 200;
+            ServerTickMilliseconds = 50;
             ServerTicksPerSecond = 1000.0 / ServerTickMilliseconds;
             
-            PlayerSpeedPerTick = 150.0 / ServerTicksPerSecond;
-            PlayerDeccelerationFactorPerTick = Math.Pow(0.04, 1.0 / ServerTicksPerSecond);
+            PlayerSpeedPerTick = 100.0 / ServerTicksPerSecond;
+            PlayerDeccelerationFactorPerTick = Math.Pow(0.1, 1.0 / ServerTicksPerSecond);
             BulletDecceleraionFactorPerTick = Math.Pow(0.5, 1.0 / ServerTicksPerSecond);
         }
 

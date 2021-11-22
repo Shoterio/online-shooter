@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using GameServer.Hubs;
@@ -30,6 +32,7 @@ namespace GameServer.Game
         private readonly IHubContext<GameHub> _hubContext;
         private IConfig _config;
         private static int bulletId = 1;
+        private Random random;
 
         GameState IGameEngine.GameState { get => _gameState; }
 
@@ -40,6 +43,7 @@ namespace GameServer.Game
             GameEvents = new GameEvents(this);
             PhysicsEngine = new PhysicsEngine(config, mapState);
             worldLoader.LoadMap();
+            random = new Random();
             Ticker = new Timer(Tick, null, 0, _config.ServerTickMilliseconds);
         }
 
@@ -80,8 +84,21 @@ namespace GameServer.Game
 
         private void Tick(object state)
         {
+            var stopwatch = Stopwatch.StartNew();
+
             foreach (var player in _gameState.Players)
             {
+                player.Keys.Clear();
+                player.Angle = (random.NextDouble() * 2 * Math.PI) - Math.PI;
+                player.MouseClicked = true;
+
+                var pressedKeys = random.Next(2); // Pressed 0, 1 or 2 keys
+                for(int i = 0; i < pressedKeys; i++)
+                {
+                    // Keys from 1 to 4 (up, down, left, right)
+                    player.Keys.Add((KeyEnum) (random.Next(4) + 1));
+                }
+
                 if (!player.IsAlive)
                 {
                     player.MilisecondsToResurect -= _config.ServerTickMilliseconds;
@@ -101,6 +118,16 @@ namespace GameServer.Game
 
             // Send game state for every connected client
             _hubContext?.Clients.All.SendAsync("updateGameState", GameState.Instance);
+
+            stopwatch.Stop();
+            try
+            {
+                File.AppendAllText("wwwroot\\ticks.txt", $"{stopwatch.ElapsedTicks}{Environment.NewLine}");
+            }
+            catch(Exception)
+            {
+
+            }
         }
 
         private void ApplyDamage()
@@ -112,7 +139,19 @@ namespace GameServer.Game
                 if (_config.Interpolation)
                 {
                     var previousPosition = bullet.Position - (bullet.Speed * (1.0 / _config.BulletDecceleraionFactorPerTick));
+                    var stopwatch = Stopwatch.StartNew();
                     hit = CheckBulletInterpolatedHit(bullet, previousPosition);
+                    stopwatch.Stop();
+
+                    try
+                    {
+                        File.AppendAllText("wwwroot\\interpolation.txt", $"{stopwatch.ElapsedTicks}{Environment.NewLine}");
+                    }
+                    catch(Exception)
+                    {
+
+                    }
+
                 }
                 else
                     hit = CheckBulletHitAtPosition(bullet, bullet.Position);

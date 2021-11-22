@@ -110,6 +110,17 @@ Vector2.Dot = function (vectorA, vectorB) {
     return (vectorA.GetX() * vectorB.GetX()) + (vectorA.GetY() * vectorB.GetY());
 };
 
+Vector2.Norm2 = function (vector) {
+
+    const sumsqr = Math.pow(vector.GetX(), 2) + Math.pow(vector.GetY(), 2);
+    return Math.sqrt(sumsqr);
+};
+
+Vector2.Similarity = function (vectorA, vectorB) {
+
+    return Vector2.Dot(vectorA, vectorB) / Vector2.Norm2(vectorA) / Vector2.Norm2(vectorB);
+};
+
 Vector2.DistanceSquared = function (vectorA, vectorB) {
 
     return Math.pow(vectorA.GetX() - vectorB.GetX(), 2) + Math.pow(vectorA.GetY() - vectorB.GetY(), 2);

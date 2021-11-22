@@ -32,6 +32,8 @@ namespace GameServer
             {
                 routes.MapHub<GameHub>("/game");
             });
+
+            app.UseStaticFiles();
         }
     }
 }
